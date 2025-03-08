@@ -1,0 +1,29 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main # 指定触发工作流的分支
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build the site
+        run: |
+          npm install -g pnpm  # 先全局安装pnpm
+          pnpm install         # 替换原有的npm install
+          pnpm run build       # 替换原有的npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # 指定构建后的目录
+          publish_branch: gh-pages # 指定部署到的分支
+          destination_dir: . # 指定目标目录（如果不需要子目录可以留空）
+          external_repository: shiquda/future-fortune.github.io # 指定目标仓库
