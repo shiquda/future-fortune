@@ -6,6 +6,7 @@ import { Data } from '@/types/data';
 import ReactECharts from 'echarts-for-react';
 import { ExportOutlined } from '@ant-design/icons';
 import type { EChartsInstance } from 'echarts-for-react';
+import type { EChartsOption } from 'echarts';
 
 const { Text, Title } = Typography;
 
@@ -137,19 +138,6 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
       },
       tooltip: {
         trigger: 'axis',
-        formatter: function(params: any) {
-          let tooltip = params[0].axisValue + '年<br/>';
-          params.forEach((param: any) => {
-            if (param.value !== null) {
-              tooltip += param.marker + ' ' + param.seriesName + ': ¥' + 
-                        param.value?.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        }) + '<br/>';
-            }
-          });
-          return tooltip;
-        },
         axisPointer: {
           type: 'cross',
           label: {
@@ -242,7 +230,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
           <div style={{ height: '400px', width: '100%' }}>
             <ReactECharts 
               ref={chartRef}
-              option={getChartOption(data)}
+              option={getChartOption(data) as EChartsOption}
               style={{ height: '100%', width: '100%' }}
               opts={{ renderer: 'svg' }}
               notMerge={true}
