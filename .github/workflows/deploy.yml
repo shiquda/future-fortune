@@ -22,8 +22,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build # 指定构建后的目录
-          publish_branch: gh-pages # 指定部署到的分支
-          destination_dir: . # 指定目标目录（如果不需要子目录可以留空）
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          publish_dir: ./dist
           external_repository: shiquda/future-fortune.github.io # 指定目标仓库
