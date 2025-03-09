@@ -197,8 +197,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
         name: '年份',
         axisLabel: {
           formatter: function(value: number) {
-            const age = calculateAge(value);
-            return age !== null ? `${value}\n(${age}岁)` : value;
+            return value;
           }
         }
       },
@@ -340,8 +339,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
         name: '年份',
         axisLabel: {
           formatter: function(value: number) {
-            const age = calculateAge(value);
-            return age !== null ? `${value}\n(${age}岁)` : value;
+            return value;
           }
         }
       },

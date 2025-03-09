@@ -1,4 +1,4 @@
-import { AppstoreOutlined, LineChartOutlined, UserOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, LineChartOutlined } from '@ant-design/icons'
 import { Layout, Typography, Space, Card, message } from 'antd'
 import { createFromIconfontCN } from '@ant-design/icons'
 import { theme } from 'antd'
@@ -69,14 +69,21 @@ const App: React.FC = () => {
         </Title>
       </Header>
       <Content style={{ padding: '24px 50px', background: token.colorBgLayout, margin: 0 }}>
-        <Card style={{ background: token.colorBgContainer, padding: '24px', margin: 0, maxWidth: 1200, marginLeft: 'auto', marginRight: 'auto' }}>
+        <Card style={{ 
+          background: token.colorBgContainer, 
+          padding: '24px', 
+          margin: 0, 
+          maxWidth: 1200, 
+          marginLeft: 'auto', 
+          marginRight: 'auto' 
+        }}>
           <Title level={2}>计算你的未来财富</Title>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <UserInfoComponent 
               userInfo={userInfo}
               onUserInfoChange={handleUserInfoChange}
             />
-            <Card>
+            <Card style={{ background: '#f0f7ff' }}>
               <Title level={3}>
                 投资 <IconFont type="icon-investment" />
               </Title>
@@ -85,7 +92,7 @@ const App: React.FC = () => {
                 onInvestOptionsChange={handleInvestOptionsChange}
               />
             </Card>
-            <Card>
+            <Card style={{ background: '#f6f6f6' }}>
               <Title level={3}>
                 图表 <LineChartOutlined />
               </Title>

@@ -23,6 +23,10 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
 
   return (
     <Card
+      style={{
+        background: 'linear-gradient(-45deg, rgb(151, 200, 255) 0%, #ffffff 100%)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+      }}
       extra={
         <Space>
           <Button
@@ -35,7 +39,7 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
             type="text"
             icon={<CopyOutlined />}
             onClick={() => onCopy(value)}
-            title="复制"
+            title="创建副本"
           />
           <Button
             type="text"
@@ -136,8 +140,8 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
       ) : (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <div>
-            <Text type="secondary">名称：</Text>
-            <Text strong>{value.name || '未命名投资'}</Text>
+            <Text type="secondary">初始投入：</Text>
+            <Text strong>¥{value.initialAmount.toLocaleString()}</Text>
           </div>
           <div>
             <Text type="secondary">每年投入：</Text>
@@ -150,10 +154,6 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
           <div>
             <Text type="secondary">投资期限：</Text>
             <Text strong>{value.startYear} - {value.endYear}</Text>
-          </div>
-          <div>
-            <Text type="secondary">初始投入：</Text>
-            <Text strong>¥{value.initialAmount.toLocaleString()}</Text>
           </div>
         </Space>
       )}

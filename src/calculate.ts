@@ -133,11 +133,3 @@ export const calculateData = (investOptions: InvestOption[]): Data => {
     return data;
 };
 
-
-
-
-
-
-
-
-

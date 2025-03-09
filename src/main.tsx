@@ -18,6 +18,12 @@ createRoot(document.getElementById('root')!).render(
           colorLink: '#1890ff',         // 链接颜色
           red: '#ff4d4f'
         },
+        components: {
+          Card: {
+            colorBgContainer: '#f9f9f9', // 卡片默认背景色
+            boxShadowTertiary: '0 1px 2px rgba(0, 0, 0, 0.1)' // 轻微阴影
+          }
+        }
       }}
     >
       <App />

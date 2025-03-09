@@ -31,7 +31,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo, onUserInfoChange
   };
 
   return (
-    <Card>
+    <Card style={{ background: '#f5f8ff' }}>
       <Title level={3}>
         关于你 <UserOutlined />
       </Title>
