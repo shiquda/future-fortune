@@ -143,6 +143,14 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
           label: {
             backgroundColor: '#6a7985'
           }
+        },
+        formatter: function(params: any) {
+          let result = params[0].axisValue + '<br/>';
+          params.forEach((item: any) => {
+            result += item.marker + ' ' + item.seriesName + ': ' + 
+                     item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '<br/>';
+          });
+          return result;
         }
       },
       legend: {
