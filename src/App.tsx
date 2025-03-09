@@ -1,5 +1,5 @@
-import { AppstoreOutlined, LineChartOutlined } from '@ant-design/icons'
-import { Layout, Typography, Space, Card, message } from 'antd'
+import { AppstoreOutlined, LineChartOutlined, GithubOutlined } from '@ant-design/icons'
+import { Layout, Typography, Space, Card, message, Button } from 'antd'
 import { createFromIconfontCN } from '@ant-design/icons'
 import { theme } from 'antd'
 import InvestSettings from './components/invest/InvestSettings'
@@ -63,10 +63,24 @@ const App: React.FC = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {contextHolder}
-      <Header style={{ background: token.colorBgLayout, padding: '0 24px', margin: 0 }}>
+      <Header style={{ 
+        background: token.colorBgLayout, 
+        padding: '0 24px', 
+        margin: 0,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
         <Title level={3} style={{ color: token.colorTextLightSolid, margin: 0 }}>
           <AppstoreOutlined style={{ color: token.colorTextLightSolid, fontSize: 24, marginRight: 8 }} /> Future Fortune
         </Title>
+        <Button 
+          type="link" 
+          href="https://github.com/shiquda/future-fortune" 
+          target="_blank"
+          icon={<GithubOutlined style={{ fontSize: 24, color: token.colorTextLightSolid }} />}
+          style={{ color: token.colorTextLightSolid }}
+        />
       </Header>
       <Content style={{ padding: '24px 50px', background: token.colorBgLayout, margin: 0 }}>
         <Card style={{ 
@@ -101,11 +115,11 @@ const App: React.FC = () => {
           </Space>
         </Card>
       </Content>
-      <Footer style={{ textAlign: 'center', background: token.colorBgLayout, color: token.colorText, margin: 0, padding: '24px 0' }}>
-        Future Fortune ©2024 Created by shiquda
+      <Footer style={{ textAlign: 'center' }}>
+        Future Fortune ©{new Date().getFullYear()} Created by shiquda
       </Footer>
     </Layout>
-  )
-}
+  );
+};
 
-export default App
+export default App;
