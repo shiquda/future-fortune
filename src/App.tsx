@@ -115,8 +115,8 @@ const App: React.FC = () => {
           </Space>
         </Card>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>
-        Future Fortune ©{new Date().getFullYear()} Created by shiquda
+      <Footer style={{ textAlign: 'center', color: 'white' }}>
+        Future Fortune ©{new Date().getFullYear()} Created by <a href="https://github.com/shiquda" target="_blank">shiquda</a> with ❤️
       </Footer>
     </Layout>
   );

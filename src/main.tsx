@@ -15,8 +15,7 @@ createRoot(document.getElementById('root')!).render(
           colorTextLightSolid: '#fff',  // 亮色背景上的文本颜色
           colorBgContainer: '#fff',     // 内容容器背景
           borderRadius: 6,              // 统一圆角
-          colorLink: '#1890ff',         // 链接颜色
-          red: '#ff4d4f'
+          colorLink: '#ffffff',         // 链接颜色
         },
         components: {
           Card: {
