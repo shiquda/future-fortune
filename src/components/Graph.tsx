@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Typography, Space, Divider, Row, Col } from 'antd';
 import { calculateData } from '@/calculate';
 import { InvestOption } from '@/types/invest';
+import { UserInfo } from '@/types/user';
 import { Data } from '@/types/data';
 import ReactECharts from 'echarts-for-react';
 import { ExportOutlined } from '@ant-design/icons';
@@ -12,9 +13,10 @@ const { Text, Title } = Typography;
 
 interface GraphProps {
   investOptions: InvestOption[];
+  userInfo: UserInfo | null;
 }
 
-const Graph: React.FC<GraphProps> = ({ investOptions }) => {
+const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
   const [data, setData] = useState<Data | null>(null);
   const chartRef = useRef<ReactECharts>(null);
 
@@ -32,16 +34,23 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
     }
   }, [data]);
 
+  // 计算特定年份用户的年龄
+  const calculateAge = (year: number): number | null => {
+    if (!userInfo) return null;
+    return year - userInfo.birthYear;
+  };
+
   // 导出计算结果为CSV
   const handleExportCSV = () => {
     if (!data) return;
 
     // 创建总资产CSV内容
-    const totalHeaders = ['年份', '总资产'];
+    const totalHeaders = ['年份', '年龄', '总资产'];
     let csvContent = totalHeaders.join(',') + '\n';
     
     data.sumOfFortunePerYear.forEach(item => {
-      csvContent += `${item.year},${item.fortune.toFixed(2)}\n`;
+      const age = calculateAge(item.year);
+      csvContent += `${item.year},${age !== null ? age + '岁' : ''},${item.fortune.toFixed(2)}\n`;
     });
     
     // 添加各投资选项的数据
@@ -49,10 +58,11 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
     
     data.OptionData.forEach(option => {
       csvContent += `\n${option.name || '未命名投资'}\n`;
-      csvContent += '年份,资产\n';
+      csvContent += '年份,年龄,资产\n';
       
       option.fortunePerYear.forEach(item => {
-        csvContent += `${item.year},${item.fortune.toFixed(2)}\n`;
+        const age = calculateAge(item.year);
+        csvContent += `${item.year},${age !== null ? age + '岁' : ''},${item.fortune.toFixed(2)}\n`;
       });
     });
 
@@ -145,7 +155,10 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
           }
         },
         formatter: function(params: any) {
-          let result = params[0].axisValue + '<br/>';
+          const year = params[0].axisValue;
+          const age = calculateAge(parseInt(year));
+          let result = `${year}年${age !== null ? ` (${age}岁)` : ''}<br/>`;
+          
           params.forEach((item: any) => {
             result += item.marker + ' ' + item.seriesName + ': ' + 
                      item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '<br/>';
@@ -174,7 +187,13 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
         type: 'category',
         boundaryGap: false,
         data: years,
-        name: '年份'
+        name: '年份',
+        axisLabel: {
+          formatter: function(value: number) {
+            const age = calculateAge(value);
+            return age !== null ? `${value}\n(${age}岁)` : value;
+          }
+        }
       },
       yAxis: {
         type: 'value',
@@ -210,16 +229,16 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
 
   return (
     <>
-        {data && (
-          <Button 
-            type="primary" 
-            size="large" 
-            icon={<ExportOutlined />}
-            onClick={handleExportCSV}
-          >
-            导出
-          </Button>
-        )}
+      {data && (
+        <Button 
+          type="primary" 
+          size="large" 
+          icon={<ExportOutlined />}
+          onClick={handleExportCSV}
+        >
+          导出
+        </Button>
+      )}
       <Space style={{ float: 'right' }}>
         <Button 
           type="primary" 
@@ -228,7 +247,6 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
         >
           计算
         </Button>
-
       </Space>
       
       {data && (
@@ -249,28 +267,34 @@ const Graph: React.FC<GraphProps> = ({ investOptions }) => {
           
           <Title level={4}>总资产</Title>
           <Row gutter={[16, 8]}>
-            {data.sumOfFortunePerYear.map((item) => (
-              <Col key={item.year} span={8}>
-                <Text>
-                  {item.year}年: ¥{item.fortune.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
-                </Text>
-              </Col>
-            ))}
+            {data.sumOfFortunePerYear.map((item) => {
+              const age = calculateAge(item.year);
+              return (
+                <Col key={item.year} span={8}>
+                  <Text>
+                    {item.year}年{age !== null ? ` (${age}岁)` : ''}: ¥{item.fortune.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
+                  </Text>
+                </Col>
+              );
+            })}
           </Row>
           
           <Divider>各投资详情</Divider>
           
-          {data.OptionData.map((option) => (
+          {data.OptionData.map(option => (
             <div key={option.id}>
               <Title level={5}>{option.name || '未命名投资'}</Title>
               <Row gutter={[16, 8]}>
-                {option.fortunePerYear.map((item) => (
-                  <Col key={item.year} span={8}>
-                    <Text>
-                      {item.year}年: ¥{item.fortune.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </Text>
-                  </Col>
-                ))}
+                {option.fortunePerYear.map((item) => {
+                  const age = calculateAge(item.year);
+                  return (
+                    <Col key={item.year} span={8}>
+                      <Text>
+                        {item.year}年{age !== null ? ` (${age}岁)` : ''}: ¥{item.fortune.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </Text>
+                    </Col>
+                  );
+                })}
               </Row>
             </div>
           ))}

@@ -1,6 +1,8 @@
 import { InvestOption } from "@/types/invest";
+import { UserInfo } from "@/types/user";
 
 const STORAGE_KEY = "future_fortune_invest_options";
+const USER_INFO_KEY = "future_fortune_user_info";
 
 export const saveInvestOptionsToStorage = (options: InvestOption[]): void => {
   try {
@@ -29,5 +31,27 @@ export const clearInvestOptionsFromStorage = (): void => {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
     console.error("清除本地存储中的投资选项失败:", error);
+  }
+};
+
+export const saveUserInfoToStorage = (userInfo: UserInfo): void => {
+  try {
+    const serializedUserInfo = JSON.stringify(userInfo);
+    localStorage.setItem(USER_INFO_KEY, serializedUserInfo);
+  } catch (error) {
+    console.error("保存用户信息到本地存储失败:", error);
+  }
+};
+
+export const loadUserInfoFromStorage = (): UserInfo | null => {
+  try {
+    const serializedUserInfo = localStorage.getItem(USER_INFO_KEY);
+    if (serializedUserInfo === null) {
+      return null;
+    }
+    return JSON.parse(serializedUserInfo);
+  } catch (error) {
+    console.error("从本地存储加载用户信息失败:", error);
+    return null;
   }
 }; 

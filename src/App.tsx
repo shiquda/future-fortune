@@ -1,12 +1,19 @@
-import { AppstoreOutlined, LineChartOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, LineChartOutlined, UserOutlined } from '@ant-design/icons'
 import { Layout, Typography, Space, Card, message } from 'antd'
 import { createFromIconfontCN } from '@ant-design/icons'
 import { theme } from 'antd'
 import InvestSettings from './components/invest/InvestSettings'
+import UserInfoComponent from './components/user/UserInfo'
 import Graph from './components/Graph'
 import React, { useState, useEffect, useRef } from 'react'
 import { InvestOption } from './types/invest'
-import { saveInvestOptionsToStorage, loadInvestOptionsFromStorage } from './utils/storage'
+import { UserInfo } from './types/user'
+import { 
+  saveInvestOptionsToStorage, 
+  loadInvestOptionsFromStorage,
+  saveUserInfoToStorage,
+  loadUserInfoFromStorage
+} from './utils/storage'
 
 const IconFont = createFromIconfontCN({
   scriptUrl: ['//at.alicdn.com/t/c/font_4850965_42avixu03ue.js'],
@@ -18,6 +25,7 @@ const { Title } = Typography
 const App: React.FC = () => {
   const { token } = theme.useToken()
   const [investOptions, setInvestOptions] = useState<InvestOption[]>([]);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const hasShownMessage = useRef(false);
 
@@ -32,12 +40,24 @@ const App: React.FC = () => {
         hasShownMessage.current = true;
       }
     }
+
+    const savedUserInfo = loadUserInfoFromStorage();
+    if (savedUserInfo) {
+      setUserInfo(savedUserInfo);
+    }
   }, [messageApi]);
 
   const handleInvestOptionsChange = (newInvestOptions: InvestOption[]) => {
     setInvestOptions(newInvestOptions);
     // 当投资选项变化时保存到本地存储
     saveInvestOptionsToStorage(newInvestOptions);
+  };
+
+  const handleUserInfoChange = (newUserInfo: UserInfo) => {
+    setUserInfo(newUserInfo);
+    // 保存用户信息到本地存储
+    saveUserInfoToStorage(newUserInfo);
+    messageApi.success('已保存个人信息');
   };
 
   return (
@@ -52,6 +72,10 @@ const App: React.FC = () => {
         <Card style={{ background: token.colorBgContainer, padding: '24px', margin: 0, maxWidth: 1200, marginLeft: 'auto', marginRight: 'auto' }}>
           <Title level={2}>计算你的未来财富</Title>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <UserInfoComponent 
+              userInfo={userInfo}
+              onUserInfoChange={handleUserInfoChange}
+            />
             <Card>
               <Title level={3}>
                 投资 <IconFont type="icon-investment" />
@@ -65,7 +89,7 @@ const App: React.FC = () => {
               <Title level={3}>
                 图表 <LineChartOutlined />
               </Title>
-              <Graph investOptions={investOptions} />
+              <Graph investOptions={investOptions} userInfo={userInfo} />
             </Card>
           </Space>
         </Card>
