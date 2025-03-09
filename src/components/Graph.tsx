@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Typography, Space, Divider, Row, Col } from 'antd';
+import { Button, Typography, Space, Divider, Row, Col, Card, Tabs, Radio } from 'antd';
 import { calculateData } from '@/calculate';
 import { InvestOption } from '@/types/invest';
 import { UserInfo } from '@/types/user';
@@ -19,6 +19,10 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
   const [data, setData] = useState<Data | null>(null);
   const chartRef = useRef<ReactECharts>(null);
+  const investmentChartRef = useRef<ReactECharts>(null);
+  const profitChartRef = useRef<ReactECharts>(null);
+  const [investmentMode, setInvestmentMode] = useState<'yearly' | 'cumulative'>('yearly');
+  const [profitMode, setProfitMode] = useState<'yearly' | 'cumulative'>('yearly');
 
   // 计算数据并更新图表
   const handleCalculate = () => {
@@ -85,6 +89,292 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
     // 清理
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  // 投资图表配置
+  const getInvestmentChartOption = (data: Data, mode: 'yearly' | 'cumulative') => {
+    const years = data.sumOfFortunePerYear.map(item => item.year);
+    
+    // 准备总投资数据
+    const totalSeries = {
+      name: mode === 'cumulative' ? '累计总投入' : '逐年投入',
+      type: 'line',
+      data: data.sumOfFortunePerYear.map(item => 
+        mode === 'cumulative' ? item.totalInvestment : item.investment
+      ),
+      lineStyle: {
+        width: 3
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      symbol: 'circle',
+      symbolSize: 8
+    };
+    
+    // 准备各投资选项的数据
+    const optionSeries = data.OptionData.map(option => {
+      // 确保数据点与年份对齐，并处理缺失数据
+      const seriesData = years.map((year, index) => {
+        const yearData = option.fortunePerYear.find(item => item.year === year);
+        if (yearData) {
+          return mode === 'cumulative' ? yearData.totalInvestment : yearData.investment;
+        } else {
+          // 如果当前年份没有数据，查找左边最近的有效数据
+          for (let i = index - 1; i >= 0; i--) {
+            const prevYear = years[i];
+            const prevYearData = option.fortunePerYear.find(item => item.year === prevYear);
+            if (prevYearData) {
+              // 对于累计模式，使用前一个有效值
+              // 对于逐年模式，返回0（因为该年没有新投资）
+              return mode === 'cumulative' ? prevYearData.totalInvestment : 0;
+            }
+          }
+          // 如果左边没有有效数据，则返回0
+          return 0;
+        }
+      });
+      
+      return {
+        name: option.name || '未命名投资',
+        type: 'line',
+        data: seriesData,
+        emphasis: {
+          focus: 'series'
+        },
+        symbol: 'circle',
+        symbolSize: 6
+      };
+    });
+    
+    return {
+      title: {
+        text: mode === 'cumulative' ? '累计投资金额' : '逐年投资金额',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#6a7985'
+          }
+        },
+        formatter: function(params: any) {
+          const year = params[0].axisValue;
+          const age = calculateAge(parseInt(year));
+          let result = `${year}年${age !== null ? ` (${age}岁)` : ''}<br/>`;
+          
+          params.forEach((item: any) => {
+            if (item.value !== null) {
+              result += item.marker + ' ' + item.seriesName + ': ' + 
+                      item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '<br/>';
+            }
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: [mode === 'cumulative' ? '累计总投入' : '逐年投入', 
+              ...data.OptionData.map(option => option.name || '未命名投资')],
+        top: 30
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        containLabel: true
+      },
+      toolbox: {
+        feature: {
+          saveAsImage: {},
+        }
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: years,
+        name: '年份',
+        axisLabel: {
+          formatter: function(value: number) {
+            const age = calculateAge(value);
+            return age !== null ? `${value}\n(${age}岁)` : value;
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '金额 (¥)',
+        axisLabel: {
+          formatter: function(value: number) {
+            if (value >= 10000) {
+              return (value / 10000) + '万';
+            }
+            return value;
+          }
+        }
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: [0],
+          start: 0,
+          end: 100,
+          bottom: 10
+        },
+        {
+          type: 'inside',
+          xAxisIndex: [0],
+          start: 0,
+          end: 100
+        }
+      ],
+      series: [totalSeries, ...optionSeries]
+    };
+  };
+
+  // 利润图表配置
+  const getProfitChartOption = (data: Data, mode: 'yearly' | 'cumulative') => {
+    const years = data.sumOfFortunePerYear.map(item => item.year);
+    
+    // 准备总利润数据
+    const totalSeries = {
+      name: mode === 'cumulative' ? '累计总利润' : '逐年利润',
+      type: 'line',
+      data: data.sumOfFortunePerYear.map(item => 
+        mode === 'cumulative' ? item.totalProfit : item.profit
+      ),
+      lineStyle: {
+        width: 3
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      symbol: 'circle',
+      symbolSize: 8
+    };
+    
+    // 准备各投资选项的数据
+    const optionSeries = data.OptionData.map(option => {
+      // 确保数据点与年份对齐，并处理缺失数据
+      const seriesData = years.map((year, index) => {
+        const yearData = option.fortunePerYear.find(item => item.year === year);
+        if (yearData) {
+          return mode === 'cumulative' ? yearData.totalProfit : yearData.profit;
+        } else {
+          // 如果当前年份没有数据，查找左边最近的有效数据
+          for (let i = index - 1; i >= 0; i--) {
+            const prevYear = years[i];
+            const prevYearData = option.fortunePerYear.find(item => item.year === prevYear);
+            if (prevYearData) {
+              // 对于累计模式，使用前一个有效值
+              // 对于逐年模式，返回0（因为该年没有新利润）
+              return mode === 'cumulative' ? prevYearData.totalProfit : 0;
+            }
+          }
+          // 如果左边没有有效数据，则返回0
+          return 0;
+        }
+      });
+      
+      return {
+        name: option.name || '未命名投资',
+        type: 'line',
+        data: seriesData,
+        emphasis: {
+          focus: 'series'
+        },
+        symbol: 'circle',
+        symbolSize: 6
+      };
+    });
+    
+    return {
+      title: {
+        text: mode === 'cumulative' ? '累计利润金额' : '逐年利润金额',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#6a7985'
+          }
+        },
+        formatter: function(params: any) {
+          const year = params[0].axisValue;
+          const age = calculateAge(parseInt(year));
+          let result = `${year}年${age !== null ? ` (${age}岁)` : ''}<br/>`;
+          
+          params.forEach((item: any) => {
+            if (item.value !== null) {
+              result += item.marker + ' ' + item.seriesName + ': ' + 
+                      item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '<br/>';
+            }
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: [mode === 'cumulative' ? '累计总利润' : '逐年利润', 
+              ...data.OptionData.map(option => option.name || '未命名投资')],
+        top: 30
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        containLabel: true
+      },
+      toolbox: {
+        feature: {
+          saveAsImage: {},
+        }
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: years,
+        name: '年份',
+        axisLabel: {
+          formatter: function(value: number) {
+            const age = calculateAge(value);
+            return age !== null ? `${value}\n(${age}岁)` : value;
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '金额 (¥)',
+        axisLabel: {
+          formatter: function(value: number) {
+            if (value >= 10000) {
+              return (value / 10000) + '万';
+            }
+            return value;
+          }
+        }
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: [0],
+          start: 0,
+          end: 100,
+          bottom: 10
+        },
+        {
+          type: 'inside',
+          xAxisIndex: [0],
+          start: 0,
+          end: 100
+        }
+      ],
+      series: [totalSeries, ...optionSeries]
+    };
   };
 
   // 更新图表配置
@@ -179,8 +469,6 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
       toolbox: {
         feature: {
           saveAsImage: {},
-          dataZoom: {},
-          restore: {}
         }
       },
       xAxis: {
@@ -190,8 +478,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
         name: '年份',
         axisLabel: {
           formatter: function(value: number) {
-            const age = calculateAge(value);
-            return age !== null ? `${value}\n(${age}岁)` : value;
+            return value;
           }
         }
       },
@@ -235,8 +522,9 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           size="large" 
           icon={<ExportOutlined />}
           onClick={handleExportCSV}
+          style={{ marginRight: '10px' }}
         >
-          导出
+          导出数据
         </Button>
       )}
       <Space style={{ float: 'right' }}>
@@ -253,15 +541,65 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
         <Space direction="vertical" style={{ width: '100%', marginTop: '20px' }}>
           <Divider>图表展示</Divider>
           
-          <div style={{ height: '400px', width: '100%' }}>
-            <ReactECharts 
-              ref={chartRef}
-              option={getChartOption(data) as EChartsOption}
-              style={{ height: '100%', width: '100%' }}
-              opts={{ renderer: 'svg' }}
-              notMerge={true}
-            />
-          </div>
+          <Tabs defaultActiveKey="1">
+            <Tabs.TabPane tab="总资产" key="1">
+              <div style={{ height: '400px', width: '100%' }}>
+                <ReactECharts 
+                  ref={chartRef}
+                  option={getChartOption(data) as EChartsOption}
+                  style={{ height: '100%', width: '100%' }}
+                  opts={{ renderer: 'svg' }}
+                  notMerge={true}
+                />
+              </div>
+            </Tabs.TabPane>
+            
+            <Tabs.TabPane tab="投资金额" key="2">
+              <Card>
+                <Radio.Group 
+                  value={investmentMode} 
+                  onChange={e => setInvestmentMode(e.target.value)}
+                  style={{ marginBottom: '20px' }}
+                >
+                  <Radio.Button value="yearly">逐年投入</Radio.Button>
+                  <Radio.Button value="cumulative">累计投入</Radio.Button>
+                </Radio.Group>
+                
+                <div style={{ height: '400px', width: '100%' }}>
+                  <ReactECharts 
+                    ref={investmentChartRef}
+                    option={getInvestmentChartOption(data, investmentMode) as EChartsOption}
+                    style={{ height: '100%', width: '100%' }}
+                    opts={{ renderer: 'svg' }}
+                    notMerge={true}
+                  />
+                </div>
+              </Card>
+            </Tabs.TabPane>
+            
+            <Tabs.TabPane tab="利润金额" key="3">
+              <Card>
+                <Radio.Group 
+                  value={profitMode} 
+                  onChange={e => setProfitMode(e.target.value)}
+                  style={{ marginBottom: '20px' }}
+                >
+                  <Radio.Button value="yearly">逐年利润</Radio.Button>
+                  <Radio.Button value="cumulative">累计利润</Radio.Button>
+                </Radio.Group>
+                
+                <div style={{ height: '400px', width: '100%' }}>
+                  <ReactECharts 
+                    ref={profitChartRef}
+                    option={getProfitChartOption(data, profitMode) as EChartsOption}
+                    style={{ height: '100%', width: '100%' }}
+                    opts={{ renderer: 'svg' }}
+                    notMerge={true}
+                  />
+                </div>
+              </Card>
+            </Tabs.TabPane>
+          </Tabs>
           
           <Divider>计算结果</Divider>
           
@@ -279,11 +617,42 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
             })}
           </Row>
           
+          <Divider>投资与利润总览</Divider>
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Card title="总投入">
+                <Title level={5}>¥{data.totalInvestment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card title="总利润">
+                <Title level={5}>¥{data.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
+              </Card>
+            </Col>
+          </Row>
+          
           <Divider>各投资详情</Divider>
           
           {data.OptionData.map(option => (
             <div key={option.id}>
               <Title level={5}>{option.name || '未命名投资'}</Title>
+              <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
+                <Col span={8}>
+                  <Card title="总资产">
+                    <Text>¥{option.fortunePerYear[option.fortunePerYear.length - 1].fortune.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card title="总投入">
+                    <Text>¥{option.totalInvestment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card title="总利润">
+                    <Text>¥{option.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+                  </Card>
+                </Col>
+              </Row>
               <Row gutter={[16, 8]}>
                 {option.fortunePerYear.map((item) => {
                   const age = calculateAge(item.year);
