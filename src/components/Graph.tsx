@@ -23,6 +23,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
   const profitChartRef = useRef<ReactECharts>(null);
   const [investmentMode, setInvestmentMode] = useState<'yearly' | 'cumulative'>('yearly');
   const [profitMode, setProfitMode] = useState<'yearly' | 'cumulative'>('yearly');
+  const [profitDisplayMode, setProfitDisplayMode] = useState<'amount' | 'rate'>('amount');
 
   // 计算数据并更新图表
   const handleCalculate = () => {
@@ -234,16 +235,25 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
   };
 
   // 利润图表配置
-  const getProfitChartOption = (data: Data, mode: 'yearly' | 'cumulative') => {
+  const getProfitChartOption = (data: Data, mode: 'yearly' | 'cumulative', displayMode: 'amount' | 'rate') => {
     const years = data.sumOfFortunePerYear.map(item => item.year);
     
     // 准备总利润数据
     const totalSeries = {
-      name: mode === 'cumulative' ? '累计总利润' : '逐年利润',
+      name: displayMode === 'amount' 
+        ? (mode === 'cumulative' ? '累计总利润' : '逐年利润') 
+        : (mode === 'cumulative' ? '累计总回报率' : '逐年回报率'),
       type: 'line',
-      data: data.sumOfFortunePerYear.map(item => 
-        mode === 'cumulative' ? item.totalProfit : item.profit
-      ),
+      data: data.sumOfFortunePerYear.map(item => {
+        if (displayMode === 'amount') {
+          return mode === 'cumulative' ? item.totalProfit : item.profit;
+        } else {
+          // 计算回报率 = 利润 / 投资 * 100%
+          const investment = mode === 'cumulative' ? item.totalInvestment : item.investment;
+          const profit = mode === 'cumulative' ? item.totalProfit : item.profit;
+          return investment && investment > 0 ? (profit / investment * 100) : 0;
+        }
+      }),
       lineStyle: {
         width: 3
       },
@@ -260,16 +270,31 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
       const seriesData = years.map((year, index) => {
         const yearData = option.fortunePerYear.find(item => item.year === year);
         if (yearData) {
-          return mode === 'cumulative' ? yearData.totalProfit : yearData.profit;
+          if (displayMode === 'amount') {
+            return mode === 'cumulative' ? yearData.totalProfit : yearData.profit;
+          } else {
+            // 计算回报率
+            const investment = mode === 'cumulative' ? yearData.totalInvestment : yearData.investment;
+            const profit = mode === 'cumulative' ? yearData.totalProfit : yearData.profit;
+            return investment && investment > 0 ? (profit / investment * 100) : 0;
+          }
         } else {
           // 如果当前年份没有数据，查找左边最近的有效数据
           for (let i = index - 1; i >= 0; i--) {
             const prevYear = years[i];
             const prevYearData = option.fortunePerYear.find(item => item.year === prevYear);
             if (prevYearData) {
-              // 对于累计模式，使用前一个有效值
-              // 对于逐年模式，返回0（因为该年没有新利润）
-              return mode === 'cumulative' ? prevYearData.totalProfit : 0;
+              if (displayMode === 'amount') {
+                return mode === 'cumulative' ? prevYearData.totalProfit : 0;
+              } else {
+                if (mode === 'cumulative') {
+                  const investment = prevYearData.totalInvestment;
+                  const profit = prevYearData.totalProfit;
+                  return investment && investment > 0 ? (profit / investment * 100) : 0;
+                } else {
+                  return 0;
+                }
+              }
             }
           }
           // 如果左边没有有效数据，则返回0
@@ -288,10 +313,12 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
         symbolSize: 6
       };
     });
-    
+
     return {
       title: {
-        text: mode === 'cumulative' ? '累计利润金额' : '逐年利润金额',
+        text: displayMode === 'amount' 
+          ? (mode === 'cumulative' ? '累计利润金额' : '逐年利润金额')
+          : (mode === 'cumulative' ? '累计回报率' : '逐年回报率'),
         left: 'center'
       },
       tooltip: {
@@ -309,16 +336,25 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           
           params.forEach((item: any) => {
             if (item.value !== null) {
-              result += item.marker + ' ' + item.seriesName + ': ' + 
-                      item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '<br/>';
+              let valueDisplay = item.value;
+              if (displayMode === 'rate') {
+                valueDisplay = item.value.toFixed(2) + '%';
+              } else {
+                valueDisplay = item.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+              }
+              result += item.marker + ' ' + item.seriesName + ': ' + valueDisplay + '<br/>';
             }
           });
           return result;
         }
       },
       legend: {
-        data: [mode === 'cumulative' ? '累计总利润' : '逐年利润', 
-              ...data.OptionData.map(option => option.name || '未命名投资')],
+        data: [
+          displayMode === 'amount' 
+            ? (mode === 'cumulative' ? '累计总利润' : '逐年利润')
+            : (mode === 'cumulative' ? '累计总回报率' : '逐年回报率'), 
+          ...data.OptionData.map(option => option.name || '未命名投资')
+        ],
         top: 30
       },
       grid: {
@@ -345,13 +381,17 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
       },
       yAxis: {
         type: 'value',
-        name: '金额 (¥)',
+        name: displayMode === 'amount' ? '金额 (¥)' : '回报率 (%)',
         axisLabel: {
           formatter: function(value: number) {
-            if (value >= 10000) {
-              return (value / 10000) + '万';
+            if (displayMode === 'amount') {
+              if (value >= 10000) {
+                return (value / 10000) + '万';
+              }
+              return value;
+            } else {
+              return value + '%';
             }
-            return value;
           }
         }
       },
@@ -575,21 +615,31 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
               </Card>
             </Tabs.TabPane>
             
-            <Tabs.TabPane tab="利润金额" key="3">
+            <Tabs.TabPane tab="利润分析" key="3">
               <Card>
-                <Radio.Group 
-                  value={profitMode} 
-                  onChange={e => setProfitMode(e.target.value)}
-                  style={{ marginBottom: '20px' }}
-                >
-                  <Radio.Button value="yearly">逐年利润</Radio.Button>
-                  <Radio.Button value="cumulative">累计利润</Radio.Button>
-                </Radio.Group>
+                <Space direction="vertical" style={{ width: '100%', marginBottom: '20px' }}>
+                  <Radio.Group 
+                    value={profitMode} 
+                    onChange={e => setProfitMode(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                  >
+                    <Radio.Button value="yearly">逐年利润</Radio.Button>
+                    <Radio.Button value="cumulative">累计利润</Radio.Button>
+                  </Radio.Group>
+                  
+                  <Radio.Group 
+                    value={profitDisplayMode} 
+                    onChange={e => setProfitDisplayMode(e.target.value)}
+                  >
+                    <Radio.Button value="amount">利润金额</Radio.Button>
+                    <Radio.Button value="rate">回报率</Radio.Button>
+                  </Radio.Group>
+                </Space>
                 
                 <div style={{ height: '400px', width: '100%' }}>
                   <ReactECharts 
                     ref={profitChartRef}
-                    option={getProfitChartOption(data, profitMode) as EChartsOption}
+                    option={getProfitChartOption(data, profitMode, profitDisplayMode) as EChartsOption}
                     style={{ height: '100%', width: '100%' }}
                     opts={{ renderer: 'svg' }}
                     notMerge={true}

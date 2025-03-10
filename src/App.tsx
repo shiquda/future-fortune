@@ -36,7 +36,7 @@ const App: React.FC = () => {
       setInvestOptions(savedOptions);
     
       if (!hasShownMessage.current) {
-        messageApi.success('已加载保存的投资设置');
+        // messageApi.success('已加载保存的投资设置');
         hasShownMessage.current = true;
       }
     }
