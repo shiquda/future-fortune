@@ -1,3 +1,3 @@
 export interface UserInfo {
-  birthYear: number;
-} 
+  birthYear: number
+}

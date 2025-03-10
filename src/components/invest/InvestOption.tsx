@@ -1,31 +1,31 @@
-import React from 'react';
-import { Card, Space, Button, Input, InputNumber, DatePicker, Typography } from 'antd';
-import { SaveOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import { InvestOption } from '@/types/invest';
+import React from 'react'
+import { Card, Space, Button, Input, InputNumber, DatePicker, Typography } from 'antd'
+import { SaveOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
+import { InvestOption } from '@/types/invest'
 
-const { Title, Text } = Typography;
+const { Title, Text } = Typography
 
 interface InvestOptionProps {
-  value: InvestOption;
-  onChange: (newValue: InvestOption) => void;
-  onDelete: (id: string) => void;
-  onCopy: (option: InvestOption) => void;
+  value: InvestOption
+  onChange: (newValue: InvestOption) => void
+  onDelete: (id: string) => void
+  onCopy: (option: InvestOption) => void
 }
 
 const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, onCopy, onDelete }) => {
   const handleToggleEdit = () => {
-    onChange({ 
-      ...value, 
-      isEditing: !value.isEditing 
-    });
-  };
+    onChange({
+      ...value,
+      isEditing: !value.isEditing,
+    })
+  }
 
   return (
     <Card
       style={{
         background: 'linear-gradient(-45deg, rgb(151, 200, 255) 0%, #ffffff 100%)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
       }}
       extra={
         <Space>
@@ -33,21 +33,10 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
             type="text"
             icon={value.isEditing ? <SaveOutlined /> : <EditOutlined />}
             onClick={handleToggleEdit}
-            title={value.isEditing ? "保存" : "编辑"}
+            title={value.isEditing ? '保存' : '编辑'}
           />
-          <Button
-            type="text"
-            icon={<CopyOutlined />}
-            onClick={() => onCopy(value)}
-            title="创建副本"
-          />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => onDelete(value.id)}
-            title="删除"
-          />
+          <Button type="text" icon={<CopyOutlined />} onClick={() => onCopy(value)} title="创建副本" />
+          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => onDelete(value.id)} title="删除" />
         </Space>
       }
     >
@@ -59,7 +48,7 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
             <Input
               placeholder="投资名称"
               value={value.name}
-              onChange={e => onChange({ ...value, name: e.target.value })}
+              onChange={(e) => onChange({ ...value, name: e.target.value })}
             />
           </div>
           <div>
@@ -68,9 +57,9 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
               prefix="¥"
               style={{ width: '100%' }}
               placeholder="初始投入金额"
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               value={value.initialAmount}
-              onChange={v => onChange({ ...value, initialAmount: Number(v) })}
+              onChange={(v) => onChange({ ...value, initialAmount: Number(v) })}
             />
           </div>
           <div>
@@ -79,9 +68,9 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
               prefix="¥"
               style={{ width: '100%' }}
               placeholder="每年投入金额"
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               value={value.amount}
-              onChange={v => onChange({ ...value, amount: Number(v) })}
+              onChange={(v) => onChange({ ...value, amount: Number(v) })}
             />
           </div>
           <div>
@@ -94,7 +83,7 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
               max={100}
               precision={2}
               value={value.rate}
-              onChange={v => onChange({ ...value, rate: Number(v) })}
+              onChange={(v) => onChange({ ...value, rate: Number(v) })}
             />
           </div>
           {/* <div>
@@ -126,16 +115,10 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
               }
             />
           </div>
-          
-          <Button 
-            type="primary" 
-            icon={<SaveOutlined />} 
-            onClick={handleToggleEdit}
-            block
-          >
+
+          <Button type="primary" icon={<SaveOutlined />} onClick={handleToggleEdit} block>
             保存
           </Button>
-
         </Space>
       ) : (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -153,12 +136,14 @@ const InvestOptionComponent: React.FC<InvestOptionProps> = ({ value, onChange, o
           </div>
           <div>
             <Text type="secondary">投资期限：</Text>
-            <Text strong>{value.startYear} - {value.endYear}</Text>
+            <Text strong>
+              {value.startYear} - {value.endYear}
+            </Text>
           </div>
         </Space>
       )}
     </Card>
-  );
-};
+  )
+}
 
-export default InvestOptionComponent; 
+export default InvestOptionComponent

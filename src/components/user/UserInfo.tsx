@@ -1,34 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Card, DatePicker, Typography, Space, Button } from 'antd';
-import { UserOutlined, SaveOutlined } from '@ant-design/icons';
-import { UserInfo } from '@/types/user';
-import dayjs from 'dayjs';
+import React, { useState, useEffect } from 'react'
+import { Card, DatePicker, Typography, Space, Button } from 'antd'
+import { UserOutlined, SaveOutlined } from '@ant-design/icons'
+import { UserInfo } from '@/types/user'
+import dayjs from 'dayjs'
 
-const { Title, Text } = Typography;
+const { Title, Text } = Typography
 
 interface UserInfoProps {
-  userInfo: UserInfo | null;
-  onUserInfoChange: (userInfo: UserInfo) => void;
+  userInfo: UserInfo | null
+  onUserInfoChange: (userInfo: UserInfo) => void
 }
 
 const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo, onUserInfoChange }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(!userInfo);
-  const [birthYear, setBirthYear] = useState<number>(userInfo?.birthYear || new Date().getFullYear() - 30);
+  const [isEditing, setIsEditing] = useState<boolean>(!userInfo)
+  const [birthYear, setBirthYear] = useState<number>(userInfo?.birthYear || new Date().getFullYear() - 30)
 
   useEffect(() => {
     if (userInfo) {
-      setBirthYear(userInfo.birthYear);
+      setBirthYear(userInfo.birthYear)
     }
-  }, [userInfo]);
+  }, [userInfo])
 
   const handleSave = () => {
-    onUserInfoChange({ birthYear });
-    setIsEditing(false);
-  };
+    onUserInfoChange({ birthYear })
+    setIsEditing(false)
+  }
 
   const handleEdit = () => {
-    setIsEditing(true);
-  };
+    setIsEditing(true)
+  }
 
   return (
     <Card style={{ background: '#f5f8ff' }}>
@@ -46,11 +46,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo, onUserInfoChange
               onChange={(date) => date && setBirthYear(date.year())}
             />
           </div>
-          <Button 
-            type="primary" 
-            icon={<SaveOutlined />} 
-            onClick={handleSave}
-          >
+          <Button type="primary" icon={<SaveOutlined />} onClick={handleSave}>
             保存
           </Button>
         </Space>
@@ -64,16 +60,13 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo, onUserInfoChange
             <Text type="secondary">当前年龄：</Text>
             <Text strong>{new Date().getFullYear() - birthYear}岁</Text>
           </div>
-          <Button 
-            type="primary" 
-            onClick={handleEdit}
-          >
+          <Button type="primary" onClick={handleEdit}>
             编辑
           </Button>
         </Space>
       )}
     </Card>
-  );
-};
+  )
+}
 
-export default UserInfoComponent; 
+export default UserInfoComponent
