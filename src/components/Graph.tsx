@@ -251,6 +251,9 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           // 计算回报率 = 利润 / 投资 * 100%
           const investment = mode === 'cumulative' ? item.totalInvestment : item.investment;
           const profit = mode === 'cumulative' ? item.totalProfit : item.profit;
+          if (profit === undefined) {
+            return 0;
+          }
           return investment && investment > 0 ? (profit / investment * 100) : 0;
         }
       }),
@@ -276,6 +279,9 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
             // 计算回报率
             const investment = mode === 'cumulative' ? yearData.totalInvestment : yearData.investment;
             const profit = mode === 'cumulative' ? yearData.totalProfit : yearData.profit;
+            if (profit === undefined) {
+              return 0;
+            }
             return investment && investment > 0 ? (profit / investment * 100) : 0;
           }
         } else {
@@ -290,6 +296,9 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
                 if (mode === 'cumulative') {
                   const investment = prevYearData.totalInvestment;
                   const profit = prevYearData.totalProfit;
+                  if (profit === undefined) {
+                    return 0;
+                  }
                   return investment && investment > 0 ? (profit / investment * 100) : 0;
                 } else {
                   return 0;
