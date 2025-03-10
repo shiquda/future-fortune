@@ -121,7 +121,7 @@ const InvestSettings: React.FC<InvestSettingsProps> = ({ investOptions, onInvest
         </Button>
       </Space>
       <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-        <Row gutter={[16, 16]}>
+        <Row gutter={[32, 32]}>
           {investOptions.map((option, index) => (
             <Col key={option.id} span={8}>
               <InvestOptionComponent

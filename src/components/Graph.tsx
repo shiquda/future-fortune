@@ -660,6 +660,20 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           
           <Divider>计算结果</Divider>
           
+          <Divider>投资与利润总览</Divider>
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Card title="总投入">
+                <Title level={5}>¥{data.totalInvestment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card title="总利润">
+                <Title level={5}>¥{data.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
+              </Card>
+            </Col>
+          </Row>
+          
           <Title level={4}>总资产</Title>
           <Row gutter={[16, 8]}>
             {data.sumOfFortunePerYear.map((item) => {
@@ -674,19 +688,6 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
             })}
           </Row>
           
-          <Divider>投资与利润总览</Divider>
-          <Row gutter={[16, 16]}>
-            <Col span={12}>
-              <Card title="总投入">
-                <Title level={5}>¥{data.totalInvestment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card title="总利润">
-                <Title level={5}>¥{data.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Title>
-              </Card>
-            </Col>
-          </Row>
           
           <Divider>各投资详情</Divider>
           

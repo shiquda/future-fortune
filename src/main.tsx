@@ -14,7 +14,7 @@ createRoot(document.getElementById('root')!).render(
           colorBgLayout: '#1890ff',     // 布局背景色
           colorTextLightSolid: '#fff',  // 亮色背景上的文本颜色
           colorBgContainer: '#fff',     // 内容容器背景
-          borderRadius: 6,              // 统一圆角
+          borderRadius: 8,              // 统一圆角
           colorLink: '#ffffff',         // 链接颜色
         },
         components: {

@@ -108,7 +108,7 @@ const App: React.FC = () => {
             </Card>
             <Card style={{ background: '#f6f6f6' }}>
               <Title level={3}>
-                图表 <LineChartOutlined />
+                分析 <LineChartOutlined />
               </Title>
               <Graph investOptions={investOptions} userInfo={userInfo} />
             </Card>
@@ -116,7 +116,7 @@ const App: React.FC = () => {
         </Card>
       </Content>
       <Footer style={{ textAlign: 'center', color: 'white' }}>
-        Future Fortune ©{new Date().getFullYear()} Created by <a href="https://github.com/shiquda" target="_blank">shiquda</a> with ❤️
+        Future Fortune ©{new Date().getFullYear()} <br/>Created by <a href="https://github.com/shiquda" target="_blank">shiquda</a> with ❤️
       </Footer>
     </Layout>
   );
