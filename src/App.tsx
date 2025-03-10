@@ -5,6 +5,7 @@ import { theme } from 'antd'
 import InvestSettings from './components/invest/InvestSettings'
 import UserInfoComponent from './components/user/UserInfo'
 import Graph from './components/Graph'
+import TableOfContents from './components/TableOfContents'
 import React, { useState, useEffect, useRef } from 'react'
 import { InvestOption } from './types/invest'
 import { UserInfo } from './types/user'
@@ -71,7 +72,7 @@ const App: React.FC = () => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <Title level={3} style={{ color: token.colorTextLightSolid, margin: 0 }}>
+        <Title level={1} style={{ color: token.colorTextLightSolid, margin: 0 }}>
           <AppstoreOutlined style={{ color: token.colorTextLightSolid, fontSize: 24, marginRight: 8 }} /> Future Fortune
         </Title>
         <Button 
@@ -83,6 +84,8 @@ const App: React.FC = () => {
         />
       </Header>
       <Content style={{ padding: '24px 50px', background: token.colorBgLayout, margin: 0 }}>
+        <TableOfContents />
+        
         <Card style={{ 
           background: token.colorBgContainer, 
           padding: '24px', 
@@ -98,7 +101,7 @@ const App: React.FC = () => {
               onUserInfoChange={handleUserInfoChange}
             />
             <Card style={{ background: '#f0f7ff' }}>
-              <Title level={3}>
+              <Title level={3} id="investment-section">
                 投资 <IconFont type="icon-investment" />
               </Title>
               <InvestSettings
@@ -107,7 +110,7 @@ const App: React.FC = () => {
               />
             </Card>
             <Card style={{ background: '#f6f6f6' }}>
-              <Title level={3}>
+              <Title level={3} id="analysis-section">
                 分析 <LineChartOutlined />
               </Title>
               <Graph investOptions={investOptions} userInfo={userInfo} />

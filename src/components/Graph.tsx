@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Typography, Space, Divider, Row, Col, Card, Tabs, Radio } from 'antd';
+import { Button, Typography, Space, Row, Col, Card, Tabs, Radio } from 'antd';
 import { calculateData } from '@/calculate';
 import { InvestOption } from '@/types/invest';
 import { UserInfo } from '@/types/user';
@@ -586,8 +586,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
       
       {data && (
         <Space direction="vertical" style={{ width: '100%', marginTop: '20px' }}>
-          <Divider>图表展示</Divider>
-          
+          <Title level={4} id="chart-display">图表展示</Title>
           <Tabs defaultActiveKey="1">
             <Tabs.TabPane tab="总资产" key="1">
               <div style={{ height: '400px', width: '100%' }}>
@@ -657,10 +656,8 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
               </Card>
             </Tabs.TabPane>
           </Tabs>
-          
-          <Divider>计算结果</Divider>
-          
-          <Divider>投资与利润总览</Divider>
+
+          <Title level={4} id="investment-profit-overview">投资与利润总览</Title>
           <Row gutter={[16, 16]}>
             <Col span={12}>
               <Card title="总投入">
@@ -674,7 +671,7 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
             </Col>
           </Row>
           
-          <Title level={4}>总资产</Title>
+          <Title level={4} id="total-assets">总资产</Title>
           <Row gutter={[16, 8]}>
             {data.sumOfFortunePerYear.map((item) => {
               const age = calculateAge(item.year);
@@ -689,11 +686,11 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           </Row>
           
           
-          <Divider>各投资详情</Divider>
+          <Title level={4} id="investment-details">各投资详情</Title>
           
           {data.OptionData.map(option => (
             <div key={option.id}>
-              <Title level={5}>{option.name || '未命名投资'}</Title>
+              <Title level={5} id={`investment-detail-${option.id}`}>{option.name || '未命名投资'}</Title>
               <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
                 <Col span={8}>
                   <Card title="总资产">
