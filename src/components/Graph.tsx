@@ -251,8 +251,8 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
             ? '累计总利润'
             : '逐年利润'
           : mode === 'cumulative'
-            ? '累计总回报率'
-            : '逐年回报率',
+          ? '累计总回报率'
+          : '逐年回报率',
       type: 'line',
       data: data.sumOfFortunePerYear.map((item) => {
         if (displayMode === 'amount') {
@@ -341,8 +341,8 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
               ? '累计利润金额'
               : '逐年利润金额'
             : mode === 'cumulative'
-              ? '累计回报率'
-              : '逐年回报率',
+            ? '累计回报率'
+            : '逐年回报率',
         left: 'center',
       },
       tooltip: {
@@ -382,8 +382,8 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
               ? '累计总利润'
               : '逐年利润'
             : mode === 'cumulative'
-              ? '累计总回报率'
-              : '逐年回报率',
+            ? '累计总回报率'
+            : '逐年回报率',
           ...data.OptionData.map((option) => option.name || '未命名投资'),
         ],
         top: 30,
@@ -682,23 +682,31 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
           <Title level={4} id="investment-profit-overview">
             投资与利润总览
           </Title>
-          <Row gutter={[16, 16]}>
+          <Text style={{ fontSize: '16px' }}>
+            你在 {data.sumOfFortunePerYear[0].year} 年 ~{' '}
+            {data.sumOfFortunePerYear[data.sumOfFortunePerYear.length - 1].year} 年，共{' '}
+            {data.sumOfFortunePerYear.length} 年的时间内：
+          </Text>
+          <Row gutter={[16, 8]}>
             <Col span={12}>
-              <Card title="总投入">
-                <Title level={5}>
+              <Card title="总投入" style={{ padding: '12px' }}>
+                <Text strong style={{ fontSize: '18px' }}>
                   ¥
                   {data.totalInvestment.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
-                </Title>
+                </Text>
               </Card>
             </Col>
             <Col span={12}>
-              <Card title="总利润">
-                <Title level={5}>
-                  ¥{data.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </Title>
+              <Card title="总回报" style={{ padding: '12px' }}>
+                <Text strong style={{ fontSize: '18px' }}>
+                  {data.totalProfit >= 0 ? '+' : ''}¥
+                  {data.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (
+                  {data.totalProfit >= 0 ? '+' : ''}
+                  {((data.totalProfit / data.totalInvestment) * 100).toFixed(2)}%)
+                </Text>
               </Card>
             </Col>
           </Row>
@@ -760,6 +768,12 @@ const Graph: React.FC<GraphProps> = ({ investOptions, userInfo }) => {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
+                      {option.totalInvestment > 0 && (
+                        <span style={{ marginLeft: 8, color: '#666' }}>
+                          ({option.totalProfit >= 0 ? '+' : ''}
+                          {((option.totalProfit / option.totalInvestment) * 100).toFixed(2)}%)
+                        </span>
+                      )}
                     </Text>
                   </Card>
                 </Col>
